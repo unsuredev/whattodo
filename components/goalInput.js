@@ -1,16 +1,39 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, TextInput, Button, Modal} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const GoalInput = props => {
-  const [enteredGoal, setEnteredGoal] = useState('');
-  const goalInputHandler = enteredText => {
+  const [enteredGoal, setEnteredGoal] = useState('');           
+
+  const goalInputHandler = async enteredText => {
+    try{
+    await AsyncStorage.setItem('enteredText', enteredText);
     setEnteredGoal(enteredText);
+  } catch (error) {
+    // Error retrieving 
+    console.log(error);
+  }
+    }
+
+
+    useEffect(()=>
+    {
+      addGoalHandler()
+    } ,[])
+  const addGoalHandler = async () => {
+    let  enteredGoal = ''
+    try{
+      enteredGoal = await AsyncStorage.getItem('enteredText') || 'none';
+      props.onAddGoal(enteredGoal);
+      //  setEnteredGoal('');
+    }
+    catch(error){
+      console.log(error)
+    }
+ 
   };
 
-  const addGoalHandler = () => {
-    props.onAddGoal(enteredGoal);
-    setEnteredGoal('');
-  };
+
   return (
     <Modal visible={props.visible} animationType="slide">
       <View style={styles.inputContainer}>
